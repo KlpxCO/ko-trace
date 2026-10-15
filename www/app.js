@@ -3,12 +3,15 @@ const video = $('camera'), message = $('cameraMessage'), frame = $('imageFrame')
 const filePicker = $('filePicker'), opacity = $('opacity'), opacityValue = $('opacityValue');
 let stream = null, facing = 'environment', locked = false, flipX = false, flipY = false;
 let x = 0, y = 0, dragging = false, startX = 0, startY = 0, baseX = 0, baseY = 0, toastTimer;
+let zoom = 1, pointers = new Map(), pinchStartDistance = 0, pinchStartZoom = 1;
 
 function toast(text) {
   const el = $('toast'); el.textContent = text; el.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
 }
 function updateTransform() { image.style.transform = `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})`; }
+function updateZoom() { frame.style.transform = `translate(-50%, -50%) scale(${zoom})`; }
+function pointerDistance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function updatePosition() {
   frame.style.left = `calc(50% + ${x}px)`;
   frame.style.top = `calc(50% + ${y}px)`;
@@ -48,8 +51,8 @@ filePicker.addEventListener('change', () => {
     $('lockImage').disabled = false; $('flipH').disabled = false; $('flipV').disabled = false;
     locked = false; frame.classList.remove('locked');
     $('lockImage').classList.remove('active'); $('lockImage').innerHTML = '<span class="button-symbol">⌑</span> Bloquear';
-    x = 0; y = 0; flipX = false; flipY = false;
-    updatePosition(); updateTransform(); applyOpacity();
+    x = 0; y = 0; zoom = 1; pointers.clear(); dragging = false; flipX = false; flipY = false;
+    updatePosition(); updateTransform(); updateZoom(); applyOpacity();
     toast('Imagen cargada. Arrástrala para colocarla.');
   };
   image.onerror = () => toast('No se pudo cargar esa imagen.');
@@ -100,18 +103,50 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSetting
 
 frame.addEventListener('pointerdown', e => {
   if (locked) return;
-  dragging = true; startX = e.clientX; startY = e.clientY; baseX = x; baseY = y;
-  frame.setPointerCapture(e.pointerId); e.preventDefault();
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  try { frame.setPointerCapture(e.pointerId); } catch (_) {}
+  if (pointers.size === 2) {
+    const pts = [...pointers.values()];
+    pinchStartDistance = pointerDistance(pts[0], pts[1]);
+    pinchStartZoom = zoom;
+    dragging = false;
+  } else if (pointers.size === 1) {
+    dragging = true; startX = e.clientX; startY = e.clientY; baseX = x; baseY = y;
+  }
+  e.preventDefault();
 });
 frame.addEventListener('pointermove', e => {
-  if (!dragging || locked) return;
-  x = baseX + e.clientX - startX; y = baseY + e.clientY - startY;
-  updatePosition();
+  if (!pointers.has(e.pointerId) || locked) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size >= 2) {
+    const pts = [...pointers.values()];
+    const distance = pointerDistance(pts[0], pts[1]);
+    if (pinchStartDistance > 0) {
+      zoom = Math.max(0.35, Math.min(3.5, pinchStartZoom * distance / pinchStartDistance));
+      updateZoom();
+    }
+    dragging = false;
+  } else if (dragging) {
+    x = baseX + e.clientX - startX; y = baseY + e.clientY - startY;
+    updatePosition();
+  }
 });
-function stopDrag() { dragging = false; }
+function stopDrag(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size === 1) {
+    const remaining = [...pointers.values()][0];
+    startX = remaining.x; startY = remaining.y; baseX = x; baseY = y;
+    dragging = true;
+  } else {
+    dragging = false;
+    pinchStartDistance = 0;
+  }
+}
 frame.addEventListener('pointerup', stopDrag);
 frame.addEventListener('pointercancel', stopDrag);
-frame.addEventListener('lostpointercapture', stopDrag);
+frame.addEventListener('lostpointercapture', e => {
+  if (pointers.has(e.pointerId)) stopDrag(e);
+});
 document.addEventListener('visibilitychange', () => {
   // Android puede suspender la cámara al cambiar de aplicación.
 });
