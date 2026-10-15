@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#101116">
+  <title>KO Trace</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">KO<span>·</span></div>
+      <div class="brand-copy"><strong>KO Trace</strong><span>TRACE YOUR VISION</span></div>
+    </div>
+    <button id="settingsOpen" class="icon-btn" aria-label="Abrir configuración" title="Configuración">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1 1.1.9-1.2 2.1-1.4-.5a7.8 7.8 0 0 1-1.5.9l-.2 1.5h-2.4l-.3-1.5a7.8 7.8 0 0 1-1.6-.6l-1.3.7-1.7-1.7.7-1.3a7.8 7.8 0 0 1-.6-1.6l-1.5-.3v-2.4l1.5-.3a7.8 7.8 0 0 1 .6-1.6l-.7-1.3 1.7-1.7 1.3.7a7.8 7.8 0 0 1 1.6-.6l.3-1.5h2.4l.2 1.5a7.8 7.8 0 0 1 1.5.9l1.4-.5 1.2 2.1-1.1.9a7.8 7.8 0 0 1 0 1.8Z"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <div class="intro">
+      <div><p class="eyebrow">TU ESTUDIO PORTÁTIL</p><h1>Calca con <em>precisión.</em></h1></div>
+      <div class="status-pill"><span></span> LISTO PARA CREAR</div>
+    </div>
+
+    <section id="stage" class="stage">
+      <video id="camera" autoplay playsinline muted></video>
+      <div id="cameraMessage" class="camera-message">
+        <div class="camera-illustration"><div class="lens"></div><span>＋</span></div>
+        <h2>Todo empieza con una idea</h2>
+        <p>Abre la cámara, coloca tu referencia y dibuja a tu ritmo.</p>
+        <button id="startCamera" class="primary-btn"><span>◎</span> Activar cámara</button>
+      </div>
+      <div id="imageFrame" class="image-frame hidden">
+        <img id="overlayImage" alt="Imagen de referencia">
+        <div id="moveHint" class="move-hint"><span>✥</span> Arrastra para mover</div>
+      </div>
+      <div class="stage-topline"><span class="live-dot"></span><span id="cameraStatus">CÁMARA INACTIVA</span><button id="switchCamera" aria-label="Cambiar cámara" title="Cambiar cámara">⇄</button></div>
+      <div class="stage-bottomline"><span class="frame-icon">◫</span><span>ÁREA DE CALCO</span><span class="stage-tip">Mantén tu teléfono estable</span></div>
+    </section>
+
+    <section class="workspace">
+      <div class="section-heading"><div class="step-number">01</div><div><h2>Tu referencia</h2><p>Elige y coloca tu imagen</p></div><span class="heading-spacer"></span><span id="imageStatus" class="mini-status">SIN IMAGEN</span></div>
+      <div class="action-grid">
+        <button id="chooseImage" class="primary-btn"><span class="plus-icon">＋</span> Elegir imagen</button>
+        <button id="lockImage" class="secondary-btn" disabled><span class="button-symbol">⌑</span> Bloquear</button>
+        <input id="filePicker" type="file" accept="image/*" hidden>
+      </div>
+      <div class="opacity-card">
+        <div class="opacity-head"><div class="slider-icon">◐</div><div class="slider-label"><label for="opacity">Transparencia</label><span>Encuentra el equilibrio ideal</span></div><strong id="opacityValue">65<span>%</span></strong></div>
+        <input id="opacity" type="range" min="1" max="100" value="65">
+        <div class="range-labels"><span>Más transparente</span><span>Más visible</span></div>
+      </div>
+
+      <div class="section-heading transform-heading"><div class="step-number">02</div><div><h2>Ajustes de imagen</h2><p>Adapta la referencia a tu dibujo</p></div></div>
+      <div class="transform-grid">
+        <button id="flipH" class="tool-btn" disabled><span class="tool-art">↔</span><span><strong>Voltear horizontal</strong><small>Reflejar de lado a lado</small></span></button>
+        <button id="flipV" class="tool-btn" disabled><span class="tool-art">↕</span><span><strong>Voltear vertical</strong><small>Invertir de arriba abajo</small></span></button>
+      </div>
+      <div class="pro-tip"><span class="tip-icon">✦</span><p><strong>Consejo de artista</strong><br>Cuando la imagen esté en su sitio, bloquéala para evitar moverla por accidente.</p></div>
+    </section>
+  </main>
+
+  <div id="settingsBackdrop" class="settings-backdrop hidden"></div>
+  <aside id="settingsPanel" class="settings-panel" aria-hidden="true" aria-label="Configuración">
+    <div class="settings-header"><div><p class="eyebrow">PERSONALIZA TU ESPACIO</p><h2>Configuración</h2></div><button id="settingsClose" class="close-btn" aria-label="Cerrar configuración">×</button></div>
+    <div class="settings-group"><div class="settings-icon">◐</div><div class="settings-copy"><strong>Apariencia</strong><span>Elige cómo se ve KO Trace</span></div></div>
+    <div class="theme-picker">
+      <button id="darkTheme" class="theme-option active" data-theme-choice="dark"><span class="theme-preview dark-preview"><i></i><i></i><i></i></span><strong>Oscuro</strong><span class="theme-check">✓</span></button>
+      <button id="lightTheme" class="theme-option" data-theme-choice="light"><span class="theme-preview light-preview"><i></i><i></i><i></i></span><strong>Claro</strong><span class="theme-check">✓</span></button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-info"><span class="info-icon">✧</span><div><strong>Diseñada para concentrarte</strong><p>Una interfaz limpia para que tu referencia y tu dibujo sean los protagonistas.</p></div></div>
+    <div class="settings-footer"><div class="brand-mark small-mark">KO<span>·</span></div><div><strong>KO Trace</strong><span>Versión inicial · Hecha para crear</span></div></div>
+  </aside>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

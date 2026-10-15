@@ -1,0 +1,6 @@
+{
+  "appId": "com.kotrace.app",
+  "appName": "KO Trace",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
